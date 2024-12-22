@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Quiz } from '@/components/quiz/Quiz';
+import { Quiz } from './components/quiz/Quiz';
 
 export default function Home() {
   const [started, setStarted] = useState(false);
