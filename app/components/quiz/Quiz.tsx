@@ -1,77 +1,112 @@
 'use client';
 
 import { useState } from 'react';
-import { questions } from '@/data/questions';
-import { QuestionCard } from './QuestionCard';
-import { Progress } from './Progress';
-import { QuizStats } from '@/types/quiz.types';
+import { QuizQuestion } from '@/types/quiz.types';
 
-interface QuizProps {
-  onComplete: (stats: QuizStats) => void;
-}
+const questions = [
+  {
+    id: 'learn',
+    text: "How do you learn best?",
+    type: "single",
+    options: [
+      { id: "learn-read", text: "📚 Reading", stats: { intelligence: 2 }},
+      { id: "learn-watch", text: "👀 Watching", stats: { wisdom: 2 }},
+      { id: "learn-do", text: "🛠️ Hands-on", stats: { dexterity: 2 }},
+      { id: "learn-group", text: "👥 With others", stats: { charisma: 2 }}
+    ]
+  },
+  {
+    id: 'health',
+    text: "What's your health focus? (Select all that apply)",
+    type: "multiple",
+    options: [
+      { id: "health-diet", text: "🥗 Diet", stats: { constitution: 1 }},
+      { id: "health-exercise", text: "💪 Exercise", stats: { strength: 1 }},
+      { id: "health-rest", text: "😴 Rest", stats: { wisdom: 1 }}
+    ]
+  }
+];
 
-export function Quiz({ onComplete }: QuizProps) {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+export function Quiz() {
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const question = questions[currentQuestion];
-  const selectedAnswers = answers[question.id] || [];
-
-  const handleAnswer = (optionId: string) => {
-    if (question.type === "single") {
-      setAnswers(prev => ({
-        ...prev,
-        [question.id]: [optionId]
-      }));
-      setTimeout(() => handleContinue(), 400);
+  const currentQuestion = questions[questionIndex];
+  const progress = (questionIndex / questions.length) * 100;
+  
+  function handleSelect(optionId: string) {
+    const currentAnswers = answers[currentQuestion.id] || [];
+    let newAnswers: string[];
+    
+    if (currentQuestion.type === 'multiple') {
+      // Toggle selection for multiple choice
+      newAnswers = currentAnswers.includes(optionId)
+        ? currentAnswers.filter(id => id !== optionId)
+        : [...currentAnswers, optionId];
     } else {
-      setAnswers(prev => {
-        const currentAnswers = prev[question.id] || [];
-        return {
-          ...prev,
-          [question.id]: currentAnswers.includes(optionId)
-            ? currentAnswers.filter(id => id !== optionId)
-            : [...currentAnswers, optionId]
-        };
-      });
+      // Replace answer for single choice and auto-advance
+      newAnswers = [optionId];
+      setTimeout(() => handleContinue(), 300);
     }
-  };
+    
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: newAnswers
+    }));
+  }
 
-  const handleContinue = () => {
-    if (currentQuestion < questions.length - 1 && !isTransitioning) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentQuestion(prev => prev + 1);
-        setIsTransitioning(false);
-      }, 300);
-    } else if (currentQuestion === questions.length - 1) {
-      // Calculate final stats and complete
-      const finalStats = calculateStats(answers);
-      onComplete(finalStats);
+  function handleContinue() {
+    if (questionIndex < questions.length - 1) {
+      setQuestionIndex(prev => prev + 1);
     }
-  };
+  }
+
+  const selectedAnswers = answers[currentQuestion.id] || [];
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-4">
-      <Progress current={currentQuestion} total={questions.length} />
-      
-      <QuestionCard
-        question={question}
-        selectedAnswers={selectedAnswers}
-        onSelect={handleAnswer}
-        isTransitioning={isTransitioning}
-      />
+    <div className="max-w-xl mx-auto p-4">
+      {/* Progress */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm mb-2">
+          <span>Question {questionIndex + 1} of {questions.length}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <div className="bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-500 h-2 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
 
-      {question.type === "multiple" && (
+      {/* Question */}
+      <div className="bg-white rounded-lg shadow p-6 mb-4">
+        <h2 className="text-xl mb-4">{currentQuestion.text}</h2>
+        <div className="space-y-2">
+          {currentQuestion.options.map(option => (
+            <button
+              key={option.id}
+              onClick={() => handleSelect(option.id)}
+              className={`w-full p-3 text-left rounded border-2 transition
+                ${selectedAnswers.includes(option.id)
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-blue-200'}`}
+            >
+              {option.text}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Continue Button (only for multiple choice) */}
+      {currentQuestion.type === 'multiple' && (
         <button
           onClick={handleContinue}
           disabled={selectedAnswers.length === 0}
-          className={`w-full py-3 px-4 rounded-lg font-medium transition-all
+          className={`w-full p-3 rounded font-medium transition
             ${selectedAnswers.length > 0
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            }`}
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-gray-200 text-gray-500'}`}
         >
           Continue
         </button>
