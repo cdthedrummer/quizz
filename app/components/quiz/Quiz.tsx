@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { QuizQuestion } from '@/types/quiz.types';
 
 const questions = [
   {
@@ -29,87 +28,80 @@ const questions = [
 
 export function Quiz() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [selections, setSelections] = useState<{[key: string]: string[]}>({});
 
-  const question = questions[currentQuestionIndex];
-  const selectedAnswers = answers[question.id] || [];
-  const progress = ((currentQuestionIndex) / (questions.length - 1)) * 100;
+  // Ensure we always have a valid question
+  const currentQuestion = questions[currentQuestionIndex] || questions[0];
+  const selectedOptions = selections[currentQuestion.id] || [];
+  
+  // Calculate progress based on current index
+  const progress = Math.min((currentQuestionIndex / (questions.length - 1)) * 100, 100);
 
   function handleOptionClick(optionId: string) {
-    setAnswers(prev => {
-      const currentAnswers = prev[question.id] || [];
-      let newAnswers: string[];
+    const isMultiple = currentQuestion.type === 'multiple';
+    const currentSelections = selections[currentQuestion.id] || [];
+    
+    let newSelections: string[];
+    if (isMultiple) {
+      // Toggle selection for multiple choice
+      newSelections = currentSelections.includes(optionId)
+        ? currentSelections.filter(id => id !== optionId)
+        : [...currentSelections, optionId];
+    } else {
+      // Single selection
+      newSelections = [optionId];
+      // Auto-advance after a brief delay
+      setTimeout(() => handleNext(), 300);
+    }
 
-      if (question.type === 'multiple') {
-        // Toggle for multiple choice
-        newAnswers = currentAnswers.includes(optionId)
-          ? currentAnswers.filter(id => id !== optionId)
-          : [...currentAnswers, optionId];
-      } else {
-        // Single choice
-        newAnswers = [optionId];
-        // Auto-advance for single choice questions
-        setTimeout(() => {
-          if (currentQuestionIndex < questions.length - 1) {
-            setCurrentQuestionIndex(prev => prev + 1);
-          }
-        }, 300);
-      }
-
-      return {
-        ...prev,
-        [question.id]: newAnswers
-      };
-    });
+    setSelections(prev => ({
+      ...prev,
+      [currentQuestion.id]: newSelections
+    }));
   }
 
-  function handleContinue() {
+  function handleNext() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      {/* Progress Bar */}
+    <div className="w-full max-w-xl mx-auto p-4">
+      {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
           <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="bg-gray-200 rounded-full h-2">
+        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            className="h-full bg-blue-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-        <h2 className="text-xl font-medium mb-4">{question.text}</h2>
+      <div className="bg-white rounded-lg shadow-sm border p-4">
+        <h2 className="text-xl mb-4">{currentQuestion.text}</h2>
         <div className="space-y-2">
-          {question.options.map(option => (
+          {currentQuestion.options.map((option) => (
             <button
               key={option.id}
               onClick={() => handleOptionClick(option.id)}
-              className="w-full flex items-center p-3 rounded border-2 transition-all focus:outline-none"
-              style={{
-                borderColor: selectedAnswers.includes(option.id) ? '#3B82F6' : '#E5E7EB',
-                backgroundColor: selectedAnswers.includes(option.id) ? '#EFF6FF' : 'white'
-              }}
+              className={`w-full flex items-center p-3 rounded border transition-colors
+                ${selectedOptions.includes(option.id) 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-200'}`}
             >
-              {/* Checkbox/Radio circle */}
-              <div 
-                className={`w-5 h-5 mr-3 rounded-${question.type === 'multiple' ? 'sm' : 'full'} border-2 flex items-center justify-center transition-colors`}
-                style={{
-                  borderColor: selectedAnswers.includes(option.id) ? '#3B82F6' : '#D1D5DB',
-                  backgroundColor: selectedAnswers.includes(option.id) ? '#3B82F6' : 'white'
-                }}
+              <div className={`w-5 h-5 mr-3 flex items-center justify-center border transition-colors
+                ${currentQuestion.type === 'multiple' ? 'rounded' : 'rounded-full'}
+                ${selectedOptions.includes(option.id)
+                  ? 'border-blue-500 bg-blue-500 text-white'
+                  : 'border-gray-300'}`}
               >
-                {selectedAnswers.includes(option.id) && (
-                  <span className="text-white text-sm">✓</span>
-                )}
+                {selectedOptions.includes(option.id) && '✓'}
               </div>
               <span>{option.text}</span>
             </button>
@@ -118,16 +110,10 @@ export function Quiz() {
       </div>
 
       {/* Continue Button */}
-      {question.type === 'multiple' && (
+      {currentQuestion.type === 'multiple' && selectedOptions.length > 0 && (
         <button
-          onClick={handleContinue}
-          disabled={selectedAnswers.length === 0}
-          className="w-full p-3 rounded font-medium transition-all focus:outline-none"
-          style={{
-            backgroundColor: selectedAnswers.length > 0 ? '#3B82F6' : '#E5E7EB',
-            color: selectedAnswers.length > 0 ? 'white' : '#9CA3AF',
-            cursor: selectedAnswers.length > 0 ? 'pointer' : 'not-allowed'
-          }}
+          onClick={handleNext}
+          className="w-full mt-4 p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
           Continue
         </button>
