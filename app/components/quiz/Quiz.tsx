@@ -28,85 +28,106 @@ const questions = [
 ];
 
 export function Quiz() {
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
 
-  const currentQuestion = questions[questionIndex];
-  const progress = (questionIndex / questions.length) * 100;
-  
-  function handleSelect(optionId: string) {
-    const currentAnswers = answers[currentQuestion.id] || [];
-    let newAnswers: string[];
-    
-    if (currentQuestion.type === 'multiple') {
-      // Toggle selection for multiple choice
-      newAnswers = currentAnswers.includes(optionId)
-        ? currentAnswers.filter(id => id !== optionId)
-        : [...currentAnswers, optionId];
-    } else {
-      // Replace answer for single choice and auto-advance
-      newAnswers = [optionId];
-      setTimeout(() => handleContinue(), 300);
-    }
-    
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion.id]: newAnswers
-    }));
+  const question = questions[currentQuestionIndex];
+  const selectedAnswers = answers[question.id] || [];
+  const progress = ((currentQuestionIndex) / (questions.length - 1)) * 100;
+
+  function handleOptionClick(optionId: string) {
+    setAnswers(prev => {
+      const currentAnswers = prev[question.id] || [];
+      let newAnswers: string[];
+
+      if (question.type === 'multiple') {
+        // Toggle for multiple choice
+        newAnswers = currentAnswers.includes(optionId)
+          ? currentAnswers.filter(id => id !== optionId)
+          : [...currentAnswers, optionId];
+      } else {
+        // Single choice
+        newAnswers = [optionId];
+        // Auto-advance for single choice questions
+        setTimeout(() => {
+          if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+          }
+        }, 300);
+      }
+
+      return {
+        ...prev,
+        [question.id]: newAnswers
+      };
+    });
   }
 
   function handleContinue() {
-    if (questionIndex < questions.length - 1) {
-      setQuestionIndex(prev => prev + 1);
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
     }
   }
 
-  const selectedAnswers = answers[currentQuestion.id] || [];
-
   return (
     <div className="max-w-xl mx-auto p-4">
-      {/* Progress */}
+      {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span>Question {questionIndex + 1} of {questions.length}</span>
+          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
           <span>{Math.round(progress)}%</span>
         </div>
         <div className="bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-500 h-2 rounded-full transition-all"
+            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
-        <h2 className="text-xl mb-4">{currentQuestion.text}</h2>
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+        <h2 className="text-xl font-medium mb-4">{question.text}</h2>
         <div className="space-y-2">
-          {currentQuestion.options.map(option => (
+          {question.options.map(option => (
             <button
               key={option.id}
-              onClick={() => handleSelect(option.id)}
-              className={`w-full p-3 text-left rounded border-2 transition
-                ${selectedAnswers.includes(option.id)
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-200'}`}
+              onClick={() => handleOptionClick(option.id)}
+              className="w-full flex items-center p-3 rounded border-2 transition-all focus:outline-none"
+              style={{
+                borderColor: selectedAnswers.includes(option.id) ? '#3B82F6' : '#E5E7EB',
+                backgroundColor: selectedAnswers.includes(option.id) ? '#EFF6FF' : 'white'
+              }}
             >
-              {option.text}
+              {/* Checkbox/Radio circle */}
+              <div 
+                className={`w-5 h-5 mr-3 rounded-${question.type === 'multiple' ? 'sm' : 'full'} border-2 flex items-center justify-center transition-colors`}
+                style={{
+                  borderColor: selectedAnswers.includes(option.id) ? '#3B82F6' : '#D1D5DB',
+                  backgroundColor: selectedAnswers.includes(option.id) ? '#3B82F6' : 'white'
+                }}
+              >
+                {selectedAnswers.includes(option.id) && (
+                  <span className="text-white text-sm">✓</span>
+                )}
+              </div>
+              <span>{option.text}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Continue Button (only for multiple choice) */}
-      {currentQuestion.type === 'multiple' && (
+      {/* Continue Button */}
+      {question.type === 'multiple' && (
         <button
           onClick={handleContinue}
           disabled={selectedAnswers.length === 0}
-          className={`w-full p-3 rounded font-medium transition
-            ${selectedAnswers.length > 0
-              ? 'bg-blue-500 text-white hover:bg-blue-600'
-              : 'bg-gray-200 text-gray-500'}`}
+          className="w-full p-3 rounded font-medium transition-all focus:outline-none"
+          style={{
+            backgroundColor: selectedAnswers.length > 0 ? '#3B82F6' : '#E5E7EB',
+            color: selectedAnswers.length > 0 ? 'white' : '#9CA3AF',
+            cursor: selectedAnswers.length > 0 ? 'pointer' : 'not-allowed'
+          }}
         >
           Continue
         </button>
