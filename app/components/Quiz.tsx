@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const questions = [
   {
@@ -63,8 +63,11 @@ const questions = [
 export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const question = questions[currentQuestion];
+  const progress = ((currentQuestion) / questions.length) * 100;
+  const selectedAnswers = answers[currentQuestion] || [];
   
   const handleAnswer = (optionId: string) => {
     if (question.type === "single") {
@@ -72,49 +75,53 @@ export default function Quiz() {
         ...prev,
         [currentQuestion]: [optionId]
       }));
-      // Auto-advance for single choice questions
-      if (currentQuestion < questions.length - 1) {
-        setTimeout(() => setCurrentQuestion(prev => prev + 1), 500);
-      }
+      // Auto-advance for single choice questions after a short delay
+      setTimeout(() => handleContinue(), 400);
     } else {
       setAnswers(prev => {
         const currentAnswers = prev[currentQuestion] || [];
-        const updated = currentAnswers.includes(optionId)
-          ? currentAnswers.filter(id => id !== optionId)
-          : [...currentAnswers, optionId];
         return {
           ...prev,
-          [currentQuestion]: updated
+          [currentQuestion]: currentAnswers.includes(optionId)
+            ? currentAnswers.filter(id => id !== optionId)
+            : [...currentAnswers, optionId]
         };
       });
     }
   };
 
-  const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
+  const handleContinue = () => {
+    if (currentQuestion < questions.length - 1 && !isTransitioning) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentQuestion(prev => prev + 1);
+        setIsTransitioning(false);
+      }, 300);
     }
   };
 
-  const selectedAnswers = answers[currentQuestion] || [];
-
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="mb-4">
-        <div className="flex justify-between text-sm text-blue-600">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-4">
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm text-blue-600 mb-2">
           <span>Question {currentQuestion + 1} of {questions.length}</span>
-          <span>{Math.round(((currentQuestion + 1) / questions.length) * 100)}% Complete</span>
+          <span>{Math.round(progress)}% Complete</span>
         </div>
-        <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
+        <div className="w-full bg-blue-100 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-            style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-4">
-        <h2 className="text-xl font-semibold mb-4">{question.text}</h2>
+      {/* Question Card */}
+      <div 
+        className={`bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 transition-opacity duration-300
+          ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
+      >
+        <h2 className="text-xl sm:text-2xl font-semibold mb-6">{question.text}</h2>
         <div className="space-y-3">
           {question.options.map((option) => (
             <button
@@ -122,30 +129,48 @@ export default function Quiz() {
               onClick={() => handleAnswer(option.id)}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left
                 ${selectedAnswers.includes(option.id)
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 shadow-sm'
                   : 'border-gray-200 hover:border-blue-300'
-                }`}
+                }
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
             >
-              <div className="font-medium">{option.text}</div>
-              {option.subtext && (
-                <div className="text-sm text-gray-500 mt-1">{option.subtext}</div>
-              )}
+              <div className="flex items-center gap-2">
+                <div className={`w-5 h-5 flex-shrink-0 rounded-${question.type === 'multiple' ? 'md' : 'full'}
+                  border-2 transition-all ${selectedAnswers.includes(option.id)
+                    ? 'border-blue-500 bg-blue-500'
+                    : 'border-gray-300'
+                  }`}
+                >
+                  {selectedAnswers.includes(option.id) && (
+                    <svg className="w-full h-full text-white p-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <div className="font-medium">{option.text}</div>
+                  {option.subtext && (
+                    <div className="text-sm text-gray-500 mt-1">{option.subtext}</div>
+                  )}
+                </div>
+              </div>
             </button>
           ))}
         </div>
       </div>
 
+      {/* Continue Button for Multiple Choice */}
       {question.type === "multiple" && (
         <button
-          onClick={handleNext}
+          onClick={handleContinue}
+          disabled={selectedAnswers.length === 0}
           className={`w-full py-3 px-4 rounded-lg font-medium transition-all
             ${selectedAnswers.length > 0
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
-          disabled={selectedAnswers.length === 0}
         >
-          Next Question →
+          Continue
         </button>
       )}
     </div>
