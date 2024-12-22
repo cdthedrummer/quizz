@@ -1,1 +1,38 @@
-ewogICJuYW1lIjogInF1aXp6IiwKICAidmVyc2lvbiI6ICIwLjEuMCIsCiAgInByaXZhdGUiOiB0cnVlLAogICJzY3JpcHRzIjogewogICAgImRldiI6ICJuZXh0IGRldiIsCiAgICAiYnVpbGQiOiAibmV4dCBidWlsZCIsCiAgICAic3RhcnQiOiAibmV4dCBzdGFydCIsCiAgICAibGludCI6ICJuZXh0IGxpbnQiCiAgfSwKICAiZGVwZW5kZW5jaWVzIjogewogICAgIkByYWRpeC11aS9yZWFjdC1jaGVja2JveCI6ICJeMS4wLjQiLAogICAgIkByYWRpeC11aS9yZWFjdC1sYWJlbCI6ICJeMi4wLjIiLAogICAgIkByYWRpeC11aS9yZWFjdC1wcm9ncmVzcyI6ICJeMS4wLjMiLAogICAgIkByYWRpeC11aS9yZWFjdC1yYWRpby1ncm91cCI6ICJeMS4xLjMiLAogICAgIkByYWRpeC11aS9yZWFjdC1zbG90IjogIl4xLjAuMiIsCiAgICAiY2xhc3MtdmFyaWFuY2UtYXV0aG9yaXR5IjogIl4wLjcuMCIsCiAgICAiY2xzeCI6ICJeMi4xLjAiLAogICAgImZyYW1lci1tb3Rpb24iOiAiXjEwLjE4LjAiLAogICAgImx1Y2lkZS1yZWFjdCI6ICJeMC4yNjMuMSIsCiAgICAibmV4dCI6ICIxNC4wLjQiLAogICAgInJlYWN0IjogIl4xOC4yLjAiLAogICAgInJlYWN0LWRvbSI6ICJeMTguMi4wIiwKICAgICJ0YWlsd2luZC1tZXJnZSI6ICJeMi4yLjAiLAogICAgInRhaWx3aW5kY3NzLWFuaW1hdGUiOiAiXjEuMC43IgogIH0sCiAgImRldkRlcGVuZGVuY2llcyI6IHsKICAgICJAdHlwZXMvbm9kZSI6ICJeMjAuMTAuNiIsCiAgICAiQHR5cGVzL3JlYWN0IjogIl4xOC4yLjQ2IiwKICAgICJAdHlwZXMvcmVhY3QtZG9tIjogIl4xOC4yLjE4IiwKICAgICJhdXRvcHJlZml4ZXIiOiAiXjEwLjQuMTYiLAogICAgImVzbGludCI6ICJeOC41Ni4wIiwKICAgICJlc2xpbnQtY29uZmlnLW5leHQiOiAiMTQuMC40IiwKICAgICJwb3N0Y3NzIjogIl44LjQuMzIiLAogICAgInRhaWx3aW5kY3NzIjogIl4zLjQuMCIsCiAgICAidHlwZXNjcmlwdCI6ICJeNS4zLjMiCiAgfQp9
+{
+  "name": "quizz",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-progress": "^1.0.3",
+    "@radix-ui/react-radio-group": "^1.1.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.263.1",
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
+  }
+}
