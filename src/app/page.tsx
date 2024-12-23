@@ -1,5 +1,7 @@
-import { QuizAnswers } from '@/lib/types';
+'use client';
+
 import { useState } from 'react';
+import type { QuizAnswers } from '@/app/types/quiz';
 
 export default function Home() {
   const [started, setStarted] = useState(false);
