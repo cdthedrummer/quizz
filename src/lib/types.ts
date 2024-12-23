@@ -1,19 +1,11 @@
-export type StatType =
-  | 'strength'
-  | 'dexterity'
-  | 'constitution'
-  | 'intelligence'
-  | 'wisdom'
-  | 'charisma';
+export type StatType = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
 
-export type Stats = {
-  [K in StatType]?: number;
-};
+export type Stats = Record<StatType, number>;
 
 export type QuestionOption = {
   id: string;
   text: string;
-  stats: Stats;
+  stats: Partial<Stats>;
 };
 
 export type Question = {
@@ -25,4 +17,12 @@ export type Question = {
 
 export type QuizAnswers = {
   [questionId: string]: string[];
+};
+
+export type Archetype = {
+  name: string;
+  icon: string;
+  description: string;
+  primaryStats: StatType[];
+  activities: string[];
 };
