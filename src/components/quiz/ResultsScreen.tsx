@@ -1,6 +1,7 @@
 'use client';
 
 import { questions } from '@/lib/data/questions';
+import { archetypes, determineArchetype } from '@/lib/data/archetypes';
 import type { QuizAnswers, Stats, StatType } from '@/lib/types';
 
 type ResultsScreenProps = {
@@ -10,7 +11,6 @@ type ResultsScreenProps = {
 function calculateStats(answers: QuizAnswers): Stats {
   const stats: Stats = {};
 
-  // Calculate total stats from all answers
   Object.entries(answers).forEach(([questionId, selectedOptionIds]) => {
     const question = questions.find(q => q.id === questionId);
     if (!question) return;
@@ -43,27 +43,41 @@ function getStatEmoji(stat: StatType): string {
 
 export function ResultsScreen({ answers }: ResultsScreenProps) {
   const stats = calculateStats(answers);
-  const sortedStats = Object.entries(stats)
-    .sort(([, a], [, b]) => b - a)
-    .map(([stat]) => stat as StatType);
-
-  const primaryStat = sortedStats[0];
-  const secondaryStat = sortedStats[1];
+  const archetype = determineArchetype(stats);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
       <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold">Your Character Stats!</h1>
+        <h1 className="text-3xl font-bold">Your Character Profile</h1>
         <p className="text-gray-600">
-          Based on your choices, here's how your attributes stack up:
+          You are a {archetype.name}!
         </p>
+      </div>
+
+      <div className="bg-blue-50 p-6 rounded-xl">
+        <p className="text-gray-700 mb-4">{archetype.description}</p>
+        <div className="space-y-2">
+          <h3 className="font-semibold">Recommended Activities:</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {archetype.activities.map((activity, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span>•</span>
+                <span>{activity}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         {Object.entries(stats).map(([stat, value]) => (
           <div
             key={stat}
-            className={`p-4 rounded-xl border-2 ${stat === primaryStat ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
+            className={`p-4 rounded-xl border-2 ${
+              archetype.stats[stat as StatType] 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-200'
+            }`}
           >
             <div className="flex items-center gap-2">
               <span className="text-2xl">{getStatEmoji(stat as StatType)}</span>
@@ -79,16 +93,6 @@ export function ResultsScreen({ answers }: ResultsScreenProps) {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-8 text-center space-y-4 bg-blue-50 p-6 rounded-xl">
-        <h2 className="text-xl font-semibold">
-          Your Primary Attributes: {getStatEmoji(primaryStat)} {primaryStat} and {getStatEmoji(secondaryStat)} {secondaryStat}
-        </h2>
-        <p className="text-gray-600">
-          These stats suggest you might excel in activities that combine {primaryStat} and {secondaryStat}. 
-          Check out the recommendations for activities that match your strengths!
-        </p>
       </div>
     </div>
   );
