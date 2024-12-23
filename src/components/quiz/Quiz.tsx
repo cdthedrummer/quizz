@@ -1,87 +1,85 @@
-'use client';
-
-import { useState } from 'react';
-import { QuestionCard } from './QuestionCard';
-import { ProgressBar } from '@/components/ui/progress';
-import { ResultsScreen } from './ResultsScreen';
+import React, { useState } from 'react';
+import { Question, QuizAnswers } from '@/lib/types';
 import { questions } from '@/lib/data/questions';
-import type { QuizAnswers } from '@/lib/types';
+import { calculateStats, determineArchetype } from '@/lib/archetypes';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
-export function Quiz() {
-  const [questionIndex, setQuestionIndex] = useState(0);
+export default function Quiz() {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
-  const isComplete = questionIndex >= questions.length;
-  const currentQuestion = questions[questionIndex];
-  const selectedAnswers = !isComplete ? (answers[currentQuestion.id] || []) : [];
-  const progress = Math.min((questionIndex / questions.length) * 100, 100);
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
 
-  function handleSelect(optionId: string) {
-    if (isTransitioning) return;
+  const handleAnswer = (questionId: string, selectedOptions: string[]) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: selectedOptions,
+    }));
 
-    if (currentQuestion.type === 'single') {
-      setAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: [optionId],
-      }));
-      handleNext();
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
     } else {
-      setAnswers(prev => {
-        const current = prev[currentQuestion.id] || [];
-        return {
-          ...prev,
-          [currentQuestion.id]: current.includes(optionId)
-            ? current.filter(id => id !== optionId)
-            : [...current, optionId],
-        };
-      });
+      setShowResults(true);
     }
-  }
+  };
 
-  function handleNext() {
-    if (isTransitioning || questionIndex >= questions.length) return;
-    
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setQuestionIndex(prev => prev + 1);
-      setIsTransitioning(false);
-    }, 300);
-  }
+  const stats = calculateStats(answers, questions);
+  const archetype = determineArchetype(stats);
 
-  if (isComplete) {
-    return <ResultsScreen answers={answers} />;
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-      <ProgressBar value={progress} showLabel />
-
-      <div
-        className={`transition-opacity duration-300 ${
-          isTransitioning ? 'opacity-50' : 'opacity-100'
-        }`}
-      >
-        <QuestionCard
-          question={currentQuestion}
-          selectedAnswers={selectedAnswers}
-          onSelect={handleSelect}
-        />
-
-        {currentQuestion.type === 'multiple' && selectedAnswers.length > 0 && (
-          <div className="mt-8">
-            <button
-              onClick={handleNext}
-              disabled={isTransitioning}
-              className="w-full py-4 bg-blue-500 text-white rounded-xl font-medium
-                transition-all duration-300 hover:bg-blue-600 
-                hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-            >
-              Continue
-            </button>
+  if (showResults) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-6">
+          <h2 className="text-2xl font-bold mb-4">Your Character Class: {archetype.icon} {archetype.name}</h2>
+          <p className="mb-4">{archetype.description}</p>
+          
+          <div className="space-y-4">
+            <h3 className="font-semibold">Your Stats:</h3>
+            {Object.entries(stats).map(([stat, value]) => (
+              <div key={stat} className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="capitalize">{stat}</span>
+                  <span>{value}</span>
+                </div>
+                <Progress value={value ? (value / 10) * 100 : 0} />
+              </div>
+            ))}
           </div>
-        )}
+
+          <div className="mt-6">
+            <h3 className="font-semibold mb-2">Suggested Activities:</h3>
+            <ul className="list-disc list-inside space-y-1">
+              {archetype.suggestedActivities.map((activity, index) => (
+                <li key={index}>{activity}</li>
+              ))}
+            </ul>
+          </div>
+        </Card>
       </div>
+    );
+  }
+
+  const question = questions[currentQuestion];
+  return (
+    <div className="space-y-6">
+      <Progress value={progress} className="w-full" />
+      
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">{question.text}</h2>
+        <div className="space-y-3">
+          {question.options.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => handleAnswer(question.id, [option.id])}
+              className="w-full p-4 text-left rounded-lg border hover:bg-gray-100 transition-colors"
+            >
+              {option.text}
+            </button>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
