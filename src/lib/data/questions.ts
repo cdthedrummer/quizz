@@ -22,4 +22,26 @@ export const questions: Question[] = [
       { id: 'health-rest', text: '😴 Rest', stats: { wisdom: 1 } },
     ],
   },
+  {
+    id: 'activity',
+    text: 'What types of activities energize you?',
+    type: 'multiple',
+    options: [
+      { id: 'activity-social', text: '🎉 Social gatherings', stats: { charisma: 2 } },
+      { id: 'activity-sports', text: '🏃 Sports', stats: { dexterity: 1, strength: 1 } },
+      { id: 'activity-creative', text: '🎨 Creative work', stats: { intelligence: 1, wisdom: 1 } },
+      { id: 'activity-outdoors', text: '🏞️ Outdoor adventures', stats: { constitution: 1, dexterity: 1 } },
+    ],
+  },
+  {
+    id: 'challenge',
+    text: 'How do you approach challenges?',
+    type: 'single',
+    options: [
+      { id: 'challenge-plan', text: '📝 Careful planning', stats: { intelligence: 2 } },
+      { id: 'challenge-adapt', text: '🌊 Adapt as I go', stats: { wisdom: 2 } },
+      { id: 'challenge-team', text: '🤝 Work with others', stats: { charisma: 2 } },
+      { id: 'challenge-action', text: '⚡ Take immediate action', stats: { dexterity: 1, strength: 1 } },
+    ],
+  },
 ];
