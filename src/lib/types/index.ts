@@ -1,5 +1,3 @@
-export type QuizAnswers = Record<string, string[]>;
-
 export type StatType =
   | 'strength'
   | 'dexterity'
@@ -8,13 +6,15 @@ export type StatType =
   | 'wisdom'
   | 'charisma';
 
-export type Stats = Record<StatType, number>;
+export type Stats = {
+  [key in StatType]?: number;
+};
 
-export type QuestionOption = {
+export interface QuestionOption {
   id: string;
   text: string;
   stats: Stats;
-};
+}
 
 export interface Question {
   id: string;
@@ -22,3 +22,7 @@ export interface Question {
   type: 'single' | 'multiple';
   options: QuestionOption[];
 }
+
+export type QuizAnswers = {
+  [questionId: string]: string[];
+};
