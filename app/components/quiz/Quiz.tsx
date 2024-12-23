@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 const questions = [
   {
@@ -8,119 +9,153 @@ const questions = [
     text: "How do you learn best?",
     type: "single",
     options: [
-      { id: "learn-read", text: "📚 Reading", stats: { intelligence: 2 }},
-      { id: "learn-watch", text: "👀 Watching", stats: { wisdom: 2 }},
-      { id: "learn-do", text: "🛠️ Hands-on", stats: { dexterity: 2 }},
-      { id: "learn-group", text: "👥 With others", stats: { charisma: 2 }}
+      { id: "learn-read", text: "📚 Reading", description: "Books, manuals, forums" },
+      { id: "learn-watch", text: "👀 Watching", description: "Videos and tutorials" },
+      { id: "learn-do", text: "🛠️ Hands-on", description: "Practice and experimentation" },
+      { id: "learn-group", text: "👥 With others", description: "Classes and groups" }
     ]
   },
   {
     id: 'health',
-    text: "What's your health focus? (Select all that apply)",
+    text: "Choose areas you'd like to improve",
+    subtext: "Select all that apply - this won't limit your experience",
     type: "multiple",
     options: [
-      { id: "health-diet", text: "🥗 Diet", stats: { constitution: 1 }},
-      { id: "health-exercise", text: "💪 Exercise", stats: { strength: 1 }},
-      { id: "health-rest", text: "😴 Rest", stats: { wisdom: 1 }}
+      { id: "health-diet", text: "Nutrition", description: "Diet and meal planning" },
+      { id: "health-exercise", text: "Exercise", description: "Physical activity" },
+      { id: "health-rest", text: "Recovery", description: "Rest and sleep habits" }
     ]
   }
 ];
 
-export function Quiz() {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selections, setSelections] = useState<{[key: string]: string[]}>({});
+export default function Quiz() {
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string[]>>({});
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const selectedOptions = selections[currentQuestion.id] || [];
-  const progress = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+  const currentQuestion = questions[questionIndex];
+  const selectedAnswers = answers[currentQuestion.id] || [];
+  const progress = (questionIndex / (questions.length - 1)) * 100;
 
-  function handleOptionClick(optionId: string) {
-    setSelections(prev => {
-      const currentSelections = prev[currentQuestion.id] || [];
-      
-      if (currentQuestion.type === 'multiple') {
-        // Toggle for multiple choice
-        return {
-          ...prev,
-          [currentQuestion.id]: currentSelections.includes(optionId)
-            ? currentSelections.filter(id => id !== optionId)
-            : [...currentSelections, optionId]
-        };
-      } else {
-        // Single choice with auto-advance
-        setTimeout(() => setCurrentQuestionIndex(i => i + 1), 300);
-        return {
-          ...prev,
-          [currentQuestion.id]: [optionId]
-        };
-      }
-    });
-  }
-
-  function handleNext() {
-    console.log('Attempting to progress...'); // Debug log
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(i => i + 1);
+  const handleSelect = (optionId: string) => {
+    if (currentQuestion.type === 'single') {
+      setAnswers(prev => ({
+        ...prev,
+        [currentQuestion.id]: [optionId]
+      }));
+      setTimeout(() => handleNext(), 400);
+    } else {
+      setAnswers(prev => {
+        const current = prev[currentQuestion.id] || [];
+        const updated = current.includes(optionId) 
+          ? current.filter(id => id !== optionId)
+          : [...current, optionId];
+        return { ...prev, [currentQuestion.id]: updated };
+      });
     }
-  }
+  };
+
+  const handleNext = () => {
+    if (questionIndex < questions.length - 1) {
+      setQuestionIndex(prev => prev + 1);
+    }
+  };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <div className="mb-4">
-        <div className="flex justify-between text-sm">
-          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-          <span>{progress}%</span>
-        </div>
-        <div className="mt-2 bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      {/* Progress Bar */}
+      <div className="w-full h-1 bg-gray-100 rounded-full mb-12">
+        <motion.div
+          className="h-full bg-blue-500 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.3 }}
+        />
       </div>
 
-      <div className="bg-white rounded-lg p-4">
-        <h2 className="text-xl mb-4">{currentQuestion.text}</h2>
-        <div className="space-y-2">
+      <motion.div
+        key={currentQuestion.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="space-y-8"
+      >
+        {/* Question */}
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {currentQuestion.text}
+          </h2>
+          {currentQuestion.subtext && (
+            <p className="text-gray-500">{currentQuestion.subtext}</p>
+          )}
+        </div>
+
+        {/* Options */}
+        <div className="space-y-3">
           {currentQuestion.options.map((option) => (
-            <button
+            <motion.button
               key={option.id}
-              onClick={() => handleOptionClick(option.id)}
-              className="w-full flex items-start p-3 rounded border border-gray-200 hover:border-blue-300 transition-all"
+              onClick={() => handleSelect(option.id)}
+              className={`w-full p-4 rounded-xl border-2 transition-all duration-200
+                ${selectedAnswers.includes(option.id)
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-blue-200'
+                } text-left group`}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
             >
-              <div className="flex items-center min-h-[1.5rem]">
-                {currentQuestion.type === 'multiple' ? (
-                  <div className={`w-5 h-5 rounded flex items-center justify-center border
-                    ${selectedOptions.includes(option.id)
-                      ? 'bg-blue-500 border-blue-500 text-white'
-                      : 'border-gray-300'
-                    }`}
-                  >
-                    {selectedOptions.includes(option.id) && '✓'}
-                  </div>
-                ) : (
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border
-                    ${selectedOptions.includes(option.id)
-                      ? 'bg-blue-500 border-blue-500'
-                      : 'border-gray-300'
-                    }`}
-                  />
-                )}
+              <div className="flex items-start">
+                <div className={`mt-1 w-5 h-5 
+                  ${currentQuestion.type === 'multiple' ? 'rounded-md' : 'rounded-full'}
+                  border-2 flex-shrink-0 mr-3 flex items-center justify-center
+                  ${selectedAnswers.includes(option.id)
+                    ? 'border-blue-500 bg-blue-500'
+                    : 'border-gray-300 group-hover:border-blue-200'
+                  }`}
+                >
+                  {selectedAnswers.includes(option.id) && (
+                    <motion.svg 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-3 h-3 text-white"
+                      viewBox="0 0 12 12"
+                    >
+                      <path
+                        d="M3 6l2 2 4-4"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                      />
+                    </motion.svg>
+                  )}
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">{option.text}</div>
+                  {option.description && (
+                    <div className="text-sm text-gray-500 mt-1">
+                      {option.description}
+                    </div>
+                  )}
+                </div>
               </div>
-              <span className="ml-3">{option.text}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
-      </div>
 
-      {currentQuestion.type === 'multiple' && selectedOptions.length > 0 && (
-        <button
-          onClick={handleNext}
-          className="w-full mt-4 p-3 bg-blue-500 text-white rounded"
-        >
-          Continue
-        </button>
-      )}
+        {/* Continue Button */}
+        {currentQuestion.type === 'multiple' && selectedAnswers.length > 0 && (
+          <motion.button
+            onClick={handleNext}
+            className="w-full py-4 bg-blue-500 text-white rounded-xl font-medium
+              hover:bg-blue-600 transition-colors"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Continue
+          </motion.button>
+        )}
+      </motion.div>
     </div>
   );
 }
