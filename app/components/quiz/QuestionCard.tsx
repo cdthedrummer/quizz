@@ -1,18 +1,14 @@
 'use client';
 
-import { QuestionType, OptionType } from '@/app/types';
+import { Question } from '../../types';
 
 interface QuestionCardProps {
-  question: QuestionType;
+  question: Question;
   selectedAnswers: string[];
   onSelect: (optionId: string) => void;
 }
 
-export default function QuestionCard({ 
-  question, 
-  selectedAnswers, 
-  onSelect 
-}: QuestionCardProps) {
+export default function QuestionCard({ question, selectedAnswers, onSelect }: QuestionCardProps) {
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -41,7 +37,7 @@ export default function QuestionCard({
               >
                 {selectedAnswers.includes(option.id) && '✓'}
               </div>
-              <span>{option.text}</span>
+              <span className="text-lg">{option.text}</span>
             </div>
           </button>
         ))}
