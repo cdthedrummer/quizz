@@ -1,36 +1,21 @@
-import { Question } from '../types';
+import { Question } from '../types/quiz';
 
 export const questions: Question[] = [
   {
-    id: 'learn',
-    text: "How do you learn best?",
-    type: "single",
+    id: 1,
+    text: 'How do you prefer to learn?',
+    type: 'select-one',
     options: [
-      { id: "learn-read", text: "📚 Reading", stats: { intelligence: 2 }},
-      { id: "learn-watch", text: "👀 Watching", stats: { wisdom: 2 }},
-      { id: "learn-do", text: "🛠️ Hands-on", stats: { dexterity: 2 }},
-      { id: "learn-group", text: "👥 With others", stats: { charisma: 2 }}
-    ]
-  },
-  {
-    id: 'health',
-    text: "What's your health focus? (Select all that apply)",
-    type: "multiple",
-    options: [
-      { id: "health-diet", text: "🥗 Diet", stats: { constitution: 1 }},
-      { id: "health-exercise", text: "💪 Exercise", stats: { strength: 1 }},
-      { id: "health-rest", text: "😴 Rest", stats: { wisdom: 1 }}
-    ]
-  },
-  {
-    id: 'activity',
-    text: "What physical activities do you enjoy most?",
-    type: "multiple",
-    options: [
-      { id: "activity-sports", text: "🏃 Sports", stats: { dexterity: 1, strength: 1 }},
-      { id: "activity-gym", text: "🏋️ Gym", stats: { strength: 2 }},
-      { id: "activity-yoga", text: "🧘 Yoga", stats: { wisdom: 1, dexterity: 1 }},
-      { id: "activity-dance", text: "💃 Dance", stats: { charisma: 1, dexterity: 1 }}
+      { text: 'Reading or Studying', stats: [{ type: 'intelligence', value: 3 }] },
+      { 
+        text: 'Watching a Video',
+        stats: [
+          { type: 'intelligence', value: 2 },
+          { type: 'wisdom', value: 2 }
+        ]
+      },
+      { text: 'Doing it Yourself', stats: [{ type: 'dexterity', value: 3 }] },
+      { text: 'Group Setting', stats: [{ type: 'charisma', value: 3 }] }
     ]
   }
 ];
