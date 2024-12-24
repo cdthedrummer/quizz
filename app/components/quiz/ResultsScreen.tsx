@@ -1,29 +1,34 @@
 'use client';
 
-import { QuizAnswers, Stats } from '@/lib/types';
-import { calculateStats } from '@/lib/utils/calculations';
+import { QuizAnswers } from '@/app/lib/types/quiz';
+import { calculateStats } from '@/app/lib/utils/calculations';
 
 interface ResultsScreenProps {
   answers: QuizAnswers;
 }
 
+interface StatBarProps {
+  label: string;
+  value: number;
+}
+
+const StatBar = ({ label, value }: StatBarProps) => (
+  <div className="mb-4">
+    <div className="flex justify-between mb-1">
+      <span className="font-medium">{label}</span>
+      <span>{value}%</span>
+    </div>
+    <div className="h-2 bg-gray-200 rounded-full">
+      <div
+        className="h-2 bg-blue-600 rounded-full transition-all duration-500"
+        style={{ width: `${value}%` }}
+      />
+    </div>
+  </div>
+);
+
 export default function ResultsScreen({ answers }: ResultsScreenProps) {
   const stats = calculateStats(answers);
-
-  const StatBar = ({ label, value }: { label: string; value: number }) => (
-    <div className="mb-4">
-      <div className="flex justify-between mb-1">
-        <span className="font-medium">{label}</span>
-        <span>{value}%</span>
-      </div>
-      <div className="h-2 bg-gray-200 rounded-full">
-        <div
-          className="h-2 bg-blue-600 rounded-full transition-all duration-500"
-          style={{ width: `${value}%` }}
-        />
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-8">

@@ -1,4 +1,4 @@
-import { Question } from '@/lib/types';
+import { Question } from '../types/quiz';
 
 export const questions: Question[] = [
   {
@@ -26,6 +26,6 @@ export const questions: Question[] = [
         stats: [{ type: 'charisma', value: 3 }]
       }
     ]
-  },
-  // Add more questions following the same structure
+  }
+  // More questions will be added here
 ];

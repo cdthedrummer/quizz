@@ -1,17 +1,25 @@
+export type StatType = 'strength' | 'intelligence' | 'wisdom' | 'dexterity' | 'charisma' | 'constitution';
+
+export interface Stat {
+  type: StatType;
+  value: number;
+}
+
+export interface QuestionOption {
+  text: string;
+  stats: Stat[];
+}
+
 export interface Question {
   id: number;
   text: string;
   type: 'select-one' | 'select-all' | 'scale';
-  options: Array<{
-    text: string;
-    stats: Array<{
-      type: 'strength' | 'intelligence' | 'wisdom' | 'dexterity' | 'charisma' | 'constitution';
-      value: number;
-    }>;
-  }>;
+  options: QuestionOption[];
 }
 
-export type QuizAnswers = Record<number, string[]>;
+export interface QuizAnswers {
+  [questionId: number]: string[];
+}
 
 export interface Stats {
   strength: number;

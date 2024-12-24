@@ -1,20 +1,12 @@
 'use client';
 
-import { Question } from '@/app/lib/types';
 import { questions } from '@/app/lib/data/questions';
+import { QuestionOption } from '@/app/lib/types/quiz';
 
 interface QuestionCardProps {
   questionIndex: number;
   onAnswer: (questionId: number, answer: string[]) => void;
   isTransitioning: boolean;
-}
-
-interface QuestionOption {
-  text: string;
-  stats: Array<{
-    type: string;
-    value: number;
-  }>;
 }
 
 export default function QuestionCard({

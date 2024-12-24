@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { QuizState, QuizAnswers } from '@/lib/types';
+import { QuizState, QuizAnswers } from '@/app/lib/types/quiz';
 import QuestionCard from './QuestionCard';
 import ResultsScreen from './ResultsScreen';
 

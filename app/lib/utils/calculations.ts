@@ -1,5 +1,5 @@
-import { QuizAnswers, Stats } from '@/lib/types';
-import { questions } from '@/lib/data/questions';
+import { QuizAnswers, Stats, Question } from '../types/quiz';
+import { questions } from '../data/questions';
 
 export function calculateStats(answers: QuizAnswers): Stats {
   const initialStats: Stats = {
@@ -11,8 +11,7 @@ export function calculateStats(answers: QuizAnswers): Stats {
     charisma: 0
   };
 
-  // Calculate raw stats
-  const rawStats = Object.entries(answers).reduce((stats, [questionId, answerTexts]) => {
+  return Object.entries(answers).reduce((stats, [questionId, answerTexts]) => {
     const question = questions.find(q => q.id === parseInt(questionId));
     if (!question) return stats;
 
@@ -21,17 +20,11 @@ export function calculateStats(answers: QuizAnswers): Stats {
       if (!option) return;
 
       option.stats.forEach(stat => {
-        stats[stat.type as keyof Stats] += stat.value;
+        const statKey = stat.type as keyof Stats;
+        stats[statKey] += stat.value;
       });
     });
 
     return stats;
   }, { ...initialStats });
-
-  // Normalize stats to percentages
-  const maxPossibleValue = 100; // Adjust based on your scoring system
-  return Object.entries(rawStats).reduce((normalized, [stat, value]) => ({
-    ...normalized,
-    [stat]: Math.round((value / maxPossibleValue) * 100)
-  }), {} as Stats);
 }
