@@ -1,6 +1,6 @@
 'use client';
 
-import QuizContainer from '@/components/quiz/QuizContainer';
+import QuizContainer from '@/app/components/quiz/QuizContainer';
 
 export default function Home() {
   return (
