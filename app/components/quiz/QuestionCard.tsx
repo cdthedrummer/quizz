@@ -1,12 +1,20 @@
 'use client';
 
-import { Question } from '@/lib/types';
-import { questions } from '@/lib/data/questions';
+import { Question } from '@/app/lib/types';
+import { questions } from '@/app/lib/data/questions';
 
 interface QuestionCardProps {
   questionIndex: number;
   onAnswer: (questionId: number, answer: string[]) => void;
   isTransitioning: boolean;
+}
+
+interface QuestionOption {
+  text: string;
+  stats: Array<{
+    type: string;
+    value: number;
+  }>;
 }
 
 export default function QuestionCard({
@@ -24,7 +32,7 @@ export default function QuestionCard({
     >
       <h2 className="text-2xl font-bold mb-6">{question.text}</h2>
       <div className="space-y-4">
-        {question.options.map((option, index) => (
+        {question.options.map((option: QuestionOption, index: number) => (
           <button
             key={index}
             onClick={() => onAnswer(question.id, [option.text])}
