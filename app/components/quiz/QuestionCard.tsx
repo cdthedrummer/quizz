@@ -1,44 +1,36 @@
 'use client';
 
-import { Question } from '../../types';
+import { Question } from '@/lib/types';
+import { questions } from '@/lib/data/questions';
 
 interface QuestionCardProps {
-  question: Question;
-  selectedAnswers: string[];
-  onSelect: (optionId: string) => void;
+  questionIndex: number;
+  onAnswer: (questionId: number, answer: string[]) => void;
+  isTransitioning: boolean;
 }
 
-export default function QuestionCard({ question, selectedAnswers, onSelect }: QuestionCardProps) {
-  return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold">{question.text}</h2>
-      </div>
+export default function QuestionCard({
+  questionIndex,
+  onAnswer,
+  isTransitioning
+}: QuestionCardProps) {
+  const question = questions[questionIndex];
 
-      <div className="space-y-3">
-        {question.options.map((option) => (
+  return (
+    <div
+      className={`transition-opacity duration-500 ${
+        isTransitioning ? 'opacity-0' : 'opacity-100'
+      }`}
+    >
+      <h2 className="text-2xl font-bold mb-6">{question.text}</h2>
+      <div className="space-y-4">
+        {question.options.map((option, index) => (
           <button
-            key={option.id}
-            onClick={() => onSelect(option.id)}
-            className={`w-full p-4 rounded-xl border-2 transition-all
-              ${selectedAnswers.includes(option.id)
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-200'
-              } text-left group`}
+            key={index}
+            onClick={() => onAnswer(question.id, [option.text])}
+            className="w-full p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-center">
-              <div className={`w-5 h-5 mr-3
-                ${question.type === 'multiple' ? 'rounded' : 'rounded-full'}
-                border-2 flex items-center justify-center
-                ${selectedAnswers.includes(option.id)
-                  ? 'border-blue-500 bg-blue-500 text-white'
-                  : 'border-gray-300'
-                }`}
-              >
-                {selectedAnswers.includes(option.id) && '✓'}
-              </div>
-              <span className="text-lg">{option.text}</span>
-            </div>
+            {option.text}
           </button>
         ))}
       </div>
