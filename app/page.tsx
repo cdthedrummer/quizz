@@ -1,10 +1,10 @@
 'use client';
 
-import QuizContainer from './components/quiz/QuizContainer';
+import QuizContainer from './components/QuizContainer';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6">
       <QuizContainer />
     </main>
   );
