@@ -1,102 +1,44 @@
 'use client';
 
 import { useState } from 'react';
-import QuestionCard from './components/quiz/QuestionCard';
-import ProgressBar from './components/quiz/ProgressBar';
-import ContinueButton from './components/quiz/ContinueButton';
-import { questions } from './data/questions';
-import type { Question } from './types';
+import { QuizState, QuizAnswers } from '@/lib/types';
 
 export default function Home() {
-  const [started, setStarted] = useState(false);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>({});
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [started, setStarted] = useState<boolean>(false);
+  const [questionIndex, setQuestionIndex] = useState<number>(0);
+  const [answers, setAnswers] = useState<QuizAnswers>({});
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   if (!started) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-white to-gray-50">
-        <div className="text-center space-y-6">
-          <h1 className="text-3xl font-bold">✨ Build Your Character!</h1>
-          <p className="text-gray-600">Discover your strengths and find ways to level up!</p>
-          <button
-            onClick={() => setStarted(true)}
-            className="px-8 py-3 bg-blue-500 text-white rounded-lg 
-              hover:bg-blue-600 transition-all transform hover:scale-105 active:scale-95"
-          >
-            Start Quiz
-          </button>
-        </div>
-      </div>
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
+        <h1 className="text-4xl font-bold mb-8">Discover Your Character</h1>
+        <p className="text-lg mb-8 text-center max-w-md">
+          Find out your strengths and get personalized recommendations for growth
+        </p>
+        <button
+          onClick={() => setStarted(true)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Start Quiz
+        </button>
+      </main>
     );
   }
 
-  const currentQuestion = questions[questionIndex];
-  const selectedAnswers = answers[currentQuestion.id] || [];
-  const progress = (questionIndex / (questions.length - 1)) * 100;
-
-  function handleSelect(optionId: string) {
-    if (isTransitioning) return;
-
-    if (currentQuestion.type === 'single') {
-      setAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: [optionId]
-      }));
-      
-      setIsTransitioning(true);
-      setTimeout(() => {
-        if (questionIndex < questions.length - 1) {
-          setQuestionIndex(prev => prev + 1);
-        }
-        setIsTransitioning(false);
-      }, 300);
-    } else {
-      setAnswers(prev => {
-        const current = prev[currentQuestion.id] || [];
-        return {
-          ...prev,
-          [currentQuestion.id]: current.includes(optionId)
-            ? current.filter(id => id !== optionId)
-            : [...current, optionId]
-        };
-      });
-    }
-  }
-
-  function handleNext() {
-    if (isTransitioning || questionIndex >= questions.length - 1) return;
-    
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setQuestionIndex(prev => prev + 1);
-      setIsTransitioning(false);
-    }, 300);
-  }
-
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <ProgressBar 
-        progress={progress}
-        showCheckpoint={questionIndex > 0}
-      />
-
-      <div className={`transition-opacity duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
-        <QuestionCard
-          question={currentQuestion}
-          selectedAnswers={selectedAnswers}
-          onSelect={handleSelect}
-        />
-
-        {currentQuestion.type === 'multiple' && selectedAnswers.length > 0 && (
-          <div className="mt-8">
-            <ContinueButton 
-              onClick={handleNext}
-              disabled={isTransitioning}
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      {/* Question content will go here */}
+      <div className="w-full max-w-2xl">
+        <div className="mb-8">
+          <div className="h-2 w-full bg-gray-200 rounded-full">
+            <div
+              className="h-2 bg-blue-600 rounded-full transition-all duration-500"
+              style={{ width: `${((questionIndex + 1) / 12) * 100}%` }}
             />
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
